@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "genealogy_relations",
+  "info": {
+    "singularName": "genealogy-relation",
+    "pluralName": "genealogy-relations",
+    "displayName": "Genealogy Relation",
+    "description": "L'Albero Vivo - Tabella di giunzione tra memoriali"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "person_a": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::memorial.memorial",
+      "inversedBy": "genealogy_relations_as_a"
+    },
+    "person_b": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::memorial.memorial",
+      "inversedBy": "genealogy_relations_as_b"
+    },
+    "relation_type": {
+      "type": "enumeration",
+      "enum": [
+        "Genitore",
+        "Figlio/a",
+        "Coniuge",
+        "Fratello/Sorella"
+      ],
+      "required": true
+    },
+    "is_confirmed": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

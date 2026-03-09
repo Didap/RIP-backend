@@ -1,0 +1,91 @@
+{
+  "kind": "collectionType",
+  "collectionName": "memorials",
+  "info": {
+    "singularName": "memorial",
+    "pluralName": "memorials",
+    "displayName": "Memorial",
+    "description": "Il Monumento - Pagina del defunto o profilo creato pre-need"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "full_name": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "full_name",
+      "required": true
+    },
+    "birth_date": {
+      "type": "date"
+    },
+    "death_date": {
+      "type": "date"
+    },
+    "biography": {
+      "type": "richtext"
+    },
+    "epitaph": {
+      "type": "string"
+    },
+    "profile_image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "cover_image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": true
+    },
+    "coordinates": {
+      "type": "json"
+    },
+    "memory_assets": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::memory-asset.memory-asset",
+      "mappedBy": "memorial"
+    },
+    "guestbooks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::guestbook.guestbook",
+      "mappedBy": "memorial"
+    },
+    "genealogy_relations_as_a": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::genealogy-relation.genealogy-relation",
+      "mappedBy": "person_a"
+    },
+    "genealogy_relations_as_b": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::genealogy-relation.genealogy-relation",
+      "mappedBy": "person_b"
+    },
+    "owner": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "memorials",
+      "required": true
+    }
+  }
+}

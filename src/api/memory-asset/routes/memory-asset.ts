@@ -1,0 +1,7 @@
+/**
+ * memory-asset router
+ */
+
+import { factories } from '@strapi/strapi';
+
+export default factories.createCoreRouter('api::memory-asset.memory-asset');

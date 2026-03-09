@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "guestbooks",
+  "info": {
+    "singularName": "guestbook",
+    "pluralName": "guestbooks",
+    "displayName": "Guestbook",
+    "description": "Il Muro dei Ricordi"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "visitor_name": {
+      "type": "string",
+      "required": true
+    },
+    "message": {
+      "type": "text"
+    },
+    "tribute_type": {
+      "type": "enumeration",
+      "enum": [
+        "Messaggio",
+        "Candela virtuale",
+        "Fiore"
+      ],
+      "required": true
+    },
+    "is_approved": {
+      "type": "boolean",
+      "default": false
+    },
+    "memorial": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::memorial.memorial",
+      "inversedBy": "guestbooks"
+    }
+  }
+}
