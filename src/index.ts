@@ -85,7 +85,7 @@ export default {
         ctx.body = {
           jwt,
           user: await strapi.entityService.findOne('plugin::users-permissions.user', newUser.id, {
-            populate: ['role']
+            populate: ['role', 'family']
           })
         };
 
@@ -125,6 +125,8 @@ export default {
             { action: 'api::memory-asset.memory-asset.findOne', role: roleObj.role.id },
             { action: 'api::guestbook.guestbook.find', role: roleObj.role.id },
             { action: 'api::guestbook.guestbook.findOne', role: roleObj.role.id },
+            { action: 'api::genealogy-relation.genealogy-relation.find', role: roleObj.role.id },
+            { action: 'api::genealogy-relation.genealogy-relation.findOne', role: roleObj.role.id },
           ];
 
           // Additional perms for public (leaving tributes)
@@ -142,6 +144,8 @@ export default {
             { action: 'api::family.family.update', role: roleObj.role.id },
             { action: 'api::memorial.memorial.create', role: roleObj.role.id },
             { action: 'api::memorial.memorial.update', role: roleObj.role.id },
+            { action: 'api::genealogy-relation.genealogy-relation.create', role: roleObj.role.id },
+            { action: 'api::genealogy-relation.genealogy-relation.update', role: roleObj.role.id },
             { action: 'plugin::upload.upload', role: roleObj.role.id },
             { action: 'plugin::upload.find', role: roleObj.role.id },
             { action: 'plugin::upload.findOne', role: roleObj.role.id },
@@ -151,6 +155,8 @@ export default {
             { action: 'plugin::upload.content-api.findOne', role: roleObj.role.id },
             { action: 'plugin::users-permissions.user.update', role: roleObj.role.id },
             { action: 'plugin::users-permissions.user.me', role: roleObj.role.id },
+            { action: 'plugin::users-permissions.user.find', role: roleObj.role.id },
+            { action: 'plugin::users-permissions.user.findOne', role: roleObj.role.id },
           ] : [];
 
           const allRolePerms = [...basePerms, ...publicOnlyPerms, ...authOnlyPerms];
