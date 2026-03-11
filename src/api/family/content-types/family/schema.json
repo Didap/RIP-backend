@@ -23,10 +23,10 @@
     "description": {
       "type": "text"
     },
-    "users": {
+    "members": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "plugin::users-permissions.user",
+      "target": "api::family-member.family-member",
       "mappedBy": "family"
     }
   }

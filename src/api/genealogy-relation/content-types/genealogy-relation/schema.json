@@ -36,6 +36,11 @@
     "is_confirmed": {
       "type": "boolean",
       "default": false
+    },
+    "family": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::family.family"
     }
   }
 }

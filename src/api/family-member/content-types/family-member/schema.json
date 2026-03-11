@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "family_members",
+  "info": {
+    "singularName": "family-member",
+    "pluralName": "family-members",
+    "displayName": "FamilyMember",
+    "description": "Junction: User <-> Family with role"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "family_memberships"
+    },
+    "family": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::family.family",
+      "inversedBy": "members"
+    },
+    "role": {
+      "type": "enumeration",
+      "enum": ["creator", "admin", "member"],
+      "default": "member",
+      "required": true
+    }
+  }
+}

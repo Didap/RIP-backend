@@ -430,6 +430,43 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiFamilyMemberFamilyMember
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'family_members';
+  info: {
+    description: 'Junction: User <-> Family with role';
+    displayName: 'FamilyMember';
+    pluralName: 'family-members';
+    singularName: 'family-member';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    family: Schema.Attribute.Relation<'manyToOne', 'api::family.family'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::family-member.family-member'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    role: Schema.Attribute.Enumeration<['creator', 'admin', 'member']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'member'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    user: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+  };
+}
+
 export interface ApiFamilyFamily extends Struct.CollectionTypeSchema {
   collectionName: 'families';
   info: {
@@ -456,14 +493,14 @@ export interface ApiFamilyFamily extends Struct.CollectionTypeSchema {
       'api::family.family'
     > &
       Schema.Attribute.Private;
+    members: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::family-member.family-member'
+    >;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    users: Schema.Attribute.Relation<
-      'oneToMany',
-      'plugin::users-permissions.user'
-    >;
   };
 }
 
@@ -483,6 +520,7 @@ export interface ApiGenealogyRelationGenealogyRelation
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    family: Schema.Attribute.Relation<'manyToOne', 'api::family.family'>;
     is_confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -560,6 +598,7 @@ export interface ApiMemorialMemorial extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     death_date: Schema.Attribute.Date;
     epitaph: Schema.Attribute.String;
+    family: Schema.Attribute.Relation<'manyToOne', 'api::family.family'>;
     full_name: Schema.Attribute.String & Schema.Attribute.Required;
     genealogy_relations_as_a: Schema.Attribute.Relation<
       'oneToMany',
@@ -1103,7 +1142,10 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
-    family: Schema.Attribute.Relation<'manyToOne', 'api::family.family'>;
+    family_memberships: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::family-member.family-member'
+    >;
     first_name: Schema.Attribute.String;
     fiscal_code: Schema.Attribute.String;
     gender: Schema.Attribute.Enumeration<['M', 'F']>;
@@ -1152,6 +1194,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::family-member.family-member': ApiFamilyMemberFamilyMember;
       'api::family.family': ApiFamilyFamily;
       'api::genealogy-relation.genealogy-relation': ApiGenealogyRelationGenealogyRelation;
       'api::guestbook.guestbook': ApiGuestbookGuestbook;

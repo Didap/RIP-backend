@@ -94,11 +94,11 @@
     "fiscal_code": {
       "type": "string"
     },
-    "family": {
+    "family_memberships": {
       "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::family.family",
-      "inversedBy": "users"
+      "relation": "oneToMany",
+      "target": "api::family-member.family-member",
+      "mappedBy": "user"
     },
     "memorials": {
       "type": "relation",

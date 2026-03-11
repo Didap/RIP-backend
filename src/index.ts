@@ -157,6 +157,11 @@ export default {
             { action: 'plugin::users-permissions.user.me', role: roleObj.role.id },
             { action: 'plugin::users-permissions.user.find', role: roleObj.role.id },
             { action: 'plugin::users-permissions.user.findOne', role: roleObj.role.id },
+            { action: 'api::family-member.family-member.find', role: roleObj.role.id },
+            { action: 'api::family-member.family-member.findOne', role: roleObj.role.id },
+            { action: 'api::family-member.family-member.create', role: roleObj.role.id },
+            { action: 'api::family-member.family-member.update', role: roleObj.role.id },
+            { action: 'api::family-member.family-member.delete', role: roleObj.role.id },
           ] : [];
 
           const allRolePerms = [...basePerms, ...publicOnlyPerms, ...authOnlyPerms];

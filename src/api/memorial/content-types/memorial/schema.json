@@ -86,6 +86,11 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "memorials",
       "required": true
+    },
+    "family": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::family.family"
     }
   }
 }
