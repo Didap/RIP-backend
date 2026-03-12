@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "contributions",
+  "info": {
+    "singularName": "contribution",
+    "pluralName": "contributions",
+    "displayName": "Contribution",
+    "description": "Ricordi e contributi degli utenti"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "tombstone": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::tombstone.tombstone",
+      "inversedBy": "contributions"
+    },
+    "author": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "content_type": {
+      "type": "enumeration",
+      "enum": ["photo", "video", "audio", "text"],
+      "required": true
+    },
+    "text_content": {
+      "type": "richtext"
+    },
+    "media": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images", "videos", "audios", "files"]
+    },
+    "is_approved": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

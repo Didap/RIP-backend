@@ -1,0 +1,71 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tombstones",
+  "info": {
+    "singularName": "tombstone",
+    "pluralName": "tombstones",
+    "displayName": "Tombstone",
+    "description": "Il Diamante Digitale - Lapide digitale"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "slug": {
+      "type": "uid",
+      "targetField": "full_name",
+      "required": true
+    },
+    "full_name": {
+      "type": "string",
+      "required": true
+    },
+    "dates": {
+      "type": "json"
+    },
+    "biography": {
+      "type": "richtext"
+    },
+    "lifecycle_status": {
+      "type": "enumeration",
+      "enum": ["draft", "published"],
+      "default": "draft",
+      "required": true
+    },
+    "profile_image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "cover_image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "permissions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::tombstone-permission.tombstone-permission",
+      "mappedBy": "tombstone"
+    },
+    "contributions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::contribution.contribution",
+      "mappedBy": "tombstone"
+    },
+    "connections": {
+      "type": "component",
+      "repeatable": true,
+      "component": "relation.connection"
+    },
+    "agency": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::agency.agency",
+      "inversedBy": "tombstones"
+    }
+  }
+}

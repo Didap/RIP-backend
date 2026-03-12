@@ -22,6 +22,16 @@ const config = ({
       },
     },
   },
+  documentation: {
+    enabled: true,
+    config: {
+      info: {
+        version: "1.0.0",
+        title: "MEMORA.LIFE API",
+        description: "Documentazione per Postman/Swagger",
+      },
+    },
+  },
 });
 
 export default config;

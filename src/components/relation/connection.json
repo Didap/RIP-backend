@@ -1,0 +1,41 @@
+{
+  "collectionName": "components_relation_connections",
+  "info": {
+    "displayName": "Connection",
+    "icon": "link",
+    "description": "Legame di parentela tra una lapide e un utente"
+  },
+  "options": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "relation_type": {
+      "type": "enumeration",
+      "enum": [
+        "Padre",
+        "Madre",
+        "Figlio/a",
+        "Fratello/Sorella",
+        "Coniuge",
+        "Partner/Compagno/a",
+        "Nonno/a",
+        "Bisnonno/a",
+        "Zio/a",
+        "Cugino/a",
+        "Nipote",
+        "Suocero/a",
+        "Genero/Nuora",
+        "Cognato/a",
+        "Amico",
+        "Altro"
+      ],
+      "required": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

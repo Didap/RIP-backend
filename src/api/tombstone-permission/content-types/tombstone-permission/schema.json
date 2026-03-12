@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tombstone_permissions",
+  "info": {
+    "singularName": "tombstone-permission",
+    "pluralName": "tombstone-permissions",
+    "displayName": "TombstonePermission",
+    "description": "ACL: Chi può gestire quale lapide"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "tombstone": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::tombstone.tombstone",
+      "inversedBy": "permissions"
+    },
+    "access_level": {
+      "type": "enumeration",
+      "enum": ["owner", "co_admin", "agency_manager"],
+      "required": true
+    }
+  }
+}

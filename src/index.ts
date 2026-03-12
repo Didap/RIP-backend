@@ -10,7 +10,6 @@ export default {
     const plugin = strapi.plugin('users-permissions');
 
     // 1. BYPASS ROUTE VALIDATOR
-    // We remove the YUP validator from the registration route to allow custom fields.
     if (plugin.routes) {
       Object.keys(plugin.routes).forEach(type => {
         const routes = plugin.routes[type].routes || [];
@@ -27,7 +26,11 @@ export default {
 
     // 2. OVERRIDE REGISTRATION CONTROLLER
     plugin.controllers.auth.register = async (ctx) => {
-      const { username, email, password, first_name, last_name, birth_date, birth_place, gender, phone, fiscal_code } = ctx.request.body || {};
+      const {
+        username, email, password,
+        first_name, last_name, birth_date, birth_place,
+        gender, phone, fiscal_code, role_type
+      } = ctx.request.body || {};
 
       if (!email || !password || !username) {
         return ctx.badRequest('Missing mandatory fields (email, password or username)');
@@ -68,6 +71,8 @@ export default {
             gender,
             phone,
             fiscal_code,
+            role_type: role_type || 'individual',
+            credits: 0,
             role: defaultRole.id,
             confirmed: true,
             provider: 'local',
@@ -85,7 +90,7 @@ export default {
         ctx.body = {
           jwt,
           user: await strapi.entityService.findOne('plugin::users-permissions.user', newUser.id, {
-            populate: ['role', 'family']
+            populate: ['role', 'managed_agency', 'agencies']
           })
         };
 
@@ -101,88 +106,7 @@ export default {
    * your application gets started.
    */
   async bootstrap({ strapi }) {
-    console.log('--- SYSTEM: SYNCING PERMISSIONS ---');
-    try {
-      const roleService = strapi.plugin('users-permissions').service('role');
-      const roles = await roleService.find();
-      const authenticatedRole = roles.find(r => r.type === 'authenticated');
-      const publicRole = roles.find(r => r.type === 'public');
-
-      const rolesToUpdate = [
-        { role: authenticatedRole, type: 'authenticated' },
-        { role: publicRole, type: 'public' }
-      ];
-
-      for (const roleObj of rolesToUpdate) {
-        if (roleObj.role) {
-          console.log(`--- SYSTEM: UPDATING PERMISSIONS FOR ROLE: ${roleObj.role.name} ---`);
-          
-          // Shared permissions for both (viewing)
-          const basePerms = [
-            { action: 'api::memorial.memorial.find', role: roleObj.role.id },
-            { action: 'api::memorial.memorial.findOne', role: roleObj.role.id },
-            { action: 'api::memory-asset.memory-asset.find', role: roleObj.role.id },
-            { action: 'api::memory-asset.memory-asset.findOne', role: roleObj.role.id },
-            { action: 'api::guestbook.guestbook.find', role: roleObj.role.id },
-            { action: 'api::guestbook.guestbook.findOne', role: roleObj.role.id },
-            { action: 'api::genealogy-relation.genealogy-relation.find', role: roleObj.role.id },
-            { action: 'api::genealogy-relation.genealogy-relation.findOne', role: roleObj.role.id },
-          ];
-
-          // Additional perms for public (leaving tributes)
-          const publicOnlyPerms = roleObj.type === 'public' ? [
-            { action: 'api::guestbook.guestbook.create', role: roleObj.role.id },
-          ] : [];
-
-          // Additional perms for authenticated
-          const authOnlyPerms = roleObj.type === 'authenticated' ? [
-            { action: 'api::guestbook.guestbook.create', role: roleObj.role.id },
-            { action: 'api::memory-asset.memory-asset.create', role: roleObj.role.id },
-            { action: 'api::family.family.find', role: roleObj.role.id },
-            { action: 'api::family.family.findOne', role: roleObj.role.id },
-            { action: 'api::family.family.create', role: roleObj.role.id },
-            { action: 'api::family.family.update', role: roleObj.role.id },
-            { action: 'api::memorial.memorial.create', role: roleObj.role.id },
-            { action: 'api::memorial.memorial.update', role: roleObj.role.id },
-            { action: 'api::genealogy-relation.genealogy-relation.create', role: roleObj.role.id },
-            { action: 'api::genealogy-relation.genealogy-relation.update', role: roleObj.role.id },
-            { action: 'plugin::upload.upload', role: roleObj.role.id },
-            { action: 'plugin::upload.find', role: roleObj.role.id },
-            { action: 'plugin::upload.findOne', role: roleObj.role.id },
-            { action: 'plugin::upload.destroy', role: roleObj.role.id },
-            { action: 'plugin::upload.content-api.upload', role: roleObj.role.id },
-            { action: 'plugin::upload.content-api.find', role: roleObj.role.id },
-            { action: 'plugin::upload.content-api.findOne', role: roleObj.role.id },
-            { action: 'plugin::users-permissions.user.update', role: roleObj.role.id },
-            { action: 'plugin::users-permissions.user.me', role: roleObj.role.id },
-            { action: 'plugin::users-permissions.user.find', role: roleObj.role.id },
-            { action: 'plugin::users-permissions.user.findOne', role: roleObj.role.id },
-            { action: 'api::family-member.family-member.find', role: roleObj.role.id },
-            { action: 'api::family-member.family-member.findOne', role: roleObj.role.id },
-            { action: 'api::family-member.family-member.create', role: roleObj.role.id },
-            { action: 'api::family-member.family-member.update', role: roleObj.role.id },
-            { action: 'api::family-member.family-member.delete', role: roleObj.role.id },
-          ] : [];
-
-          const allRolePerms = [...basePerms, ...publicOnlyPerms, ...authOnlyPerms];
-
-          for (const p of allRolePerms) {
-            const exists = await strapi.query('plugin::users-permissions.permission').findOne({
-              where: { action: p.action, role: p.role }
-            });
-            
-            if (!exists) {
-              console.log(`--- SYSTEM: GRANTING ${p.action} TO ${roleObj.type} ---`);
-              await strapi.query('plugin::users-permissions.permission').create({
-                data: { ...p }
-              });
-            }
-          }
-        }
-      }
-      console.log('--- SYSTEM: PERMISSIONS SYNCED ---');
-    } catch (err) {
-      console.error('--- SYSTEM: FAILED TO SYNC PERMISSIONS ---', err.message);
-    }
+    const { seedPermissions } = require('../scripts/seed-permissions');
+    await seedPermissions(strapi);
   },
 };

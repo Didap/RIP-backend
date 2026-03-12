@@ -430,33 +430,132 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiFamilyMemberFamilyMember
-  extends Struct.CollectionTypeSchema {
-  collectionName: 'family_members';
+export interface ApiAgencyAgency extends Struct.CollectionTypeSchema {
+  collectionName: 'agencies';
   info: {
-    description: 'Junction: User <-> Family with role';
-    displayName: 'FamilyMember';
-    pluralName: 'family-members';
-    singularName: 'family-member';
+    description: 'Imprese funebri partner';
+    displayName: 'Agency';
+    pluralName: 'agencies';
+    singularName: 'agency';
   };
   options: {
     draftAndPublish: false;
   };
   attributes: {
+    address: Schema.Attribute.JSON;
+    coordinates: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    family: Schema.Attribute.Relation<'manyToOne', 'api::family.family'>;
+    email: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
-      'api::family-member.family-member'
+      'api::agency.agency'
+    > &
+      Schema.Attribute.Private;
+    logo: Schema.Attribute.Media<'images'>;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    owner: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    phone: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    staff: Schema.Attribute.Relation<
+      'manyToMany',
+      'plugin::users-permissions.user'
+    >;
+    tombstones: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::tombstone.tombstone'
+    >;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    vat_number: Schema.Attribute.String & Schema.Attribute.Unique;
+    website: Schema.Attribute.String;
+  };
+}
+
+export interface ApiContributionContribution
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'contributions';
+  info: {
+    description: 'Ricordi e contributi degli utenti';
+    displayName: 'Contribution';
+    pluralName: 'contributions';
+    singularName: 'contribution';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    author: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    content_type: Schema.Attribute.Enumeration<
+      ['photo', 'video', 'audio', 'text']
+    > &
+      Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    is_approved: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::contribution.contribution'
+    > &
+      Schema.Attribute.Private;
+    media: Schema.Attribute.Media<
+      'images' | 'videos' | 'audios' | 'files',
+      true
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    text_content: Schema.Attribute.RichText;
+    tombstone: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::tombstone.tombstone'
+    >;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiTombstonePermissionTombstonePermission
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'tombstone_permissions';
+  info: {
+    description: 'ACL: Chi pu\u00F2 gestire quale lapide';
+    displayName: 'TombstonePermission';
+    pluralName: 'tombstone-permissions';
+    singularName: 'tombstone-permission';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    access_level: Schema.Attribute.Enumeration<
+      ['owner', 'co_admin', 'agency_manager']
+    > &
+      Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::tombstone-permission.tombstone-permission'
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    role: Schema.Attribute.Enumeration<['creator', 'admin', 'member']> &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'member'>;
+    tombstone: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::tombstone.tombstone'
+    >;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -467,204 +566,47 @@ export interface ApiFamilyMemberFamilyMember
   };
 }
 
-export interface ApiFamilyFamily extends Struct.CollectionTypeSchema {
-  collectionName: 'families';
+export interface ApiTombstoneTombstone extends Struct.CollectionTypeSchema {
+  collectionName: 'tombstones';
   info: {
-    description: 'Gestione delle famiglie degli utenti';
-    displayName: 'Family';
-    pluralName: 'families';
-    singularName: 'family';
+    description: 'Il Diamante Digitale - Lapide digitale';
+    displayName: 'Tombstone';
+    pluralName: 'tombstones';
+    singularName: 'tombstone';
   };
   options: {
     draftAndPublish: false;
   };
   attributes: {
-    access_code: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    family_name: Schema.Attribute.String & Schema.Attribute.Required;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::family.family'
-    > &
-      Schema.Attribute.Private;
-    members: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::family-member.family-member'
-    >;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiGenealogyRelationGenealogyRelation
-  extends Struct.CollectionTypeSchema {
-  collectionName: 'genealogy_relations';
-  info: {
-    description: "L'Albero Vivo - Tabella di giunzione tra memoriali";
-    displayName: 'Genealogy Relation';
-    pluralName: 'genealogy-relations';
-    singularName: 'genealogy-relation';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    family: Schema.Attribute.Relation<'manyToOne', 'api::family.family'>;
-    is_confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::genealogy-relation.genealogy-relation'
-    > &
-      Schema.Attribute.Private;
-    person_a: Schema.Attribute.Relation<'manyToOne', 'api::memorial.memorial'>;
-    person_b: Schema.Attribute.Relation<'manyToOne', 'api::memorial.memorial'>;
-    publishedAt: Schema.Attribute.DateTime;
-    relation_type: Schema.Attribute.Enumeration<
-      ['Genitore', 'Figlio/a', 'Coniuge', 'Fratello/Sorella']
-    > &
-      Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiGuestbookGuestbook extends Struct.CollectionTypeSchema {
-  collectionName: 'guestbooks';
-  info: {
-    description: 'Il Muro dei Ricordi';
-    displayName: 'Guestbook';
-    pluralName: 'guestbooks';
-    singularName: 'guestbook';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    is_approved: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::guestbook.guestbook'
-    > &
-      Schema.Attribute.Private;
-    memorial: Schema.Attribute.Relation<'manyToOne', 'api::memorial.memorial'>;
-    message: Schema.Attribute.Text;
-    publishedAt: Schema.Attribute.DateTime;
-    tribute_type: Schema.Attribute.Enumeration<
-      ['Messaggio', 'Candela virtuale', 'Fiore']
-    > &
-      Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    visitor_name: Schema.Attribute.String & Schema.Attribute.Required;
-  };
-}
-
-export interface ApiMemorialMemorial extends Struct.CollectionTypeSchema {
-  collectionName: 'memorials';
-  info: {
-    description: 'Il Monumento - Pagina del defunto o profilo creato pre-need';
-    displayName: 'Memorial';
-    pluralName: 'memorials';
-    singularName: 'memorial';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
+    agency: Schema.Attribute.Relation<'manyToOne', 'api::agency.agency'>;
     biography: Schema.Attribute.RichText;
-    birth_date: Schema.Attribute.Date;
-    coordinates: Schema.Attribute.JSON;
+    connections: Schema.Attribute.Component<'relation.connection', true>;
+    contributions: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::contribution.contribution'
+    >;
     cover_image: Schema.Attribute.Media<'images'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    death_date: Schema.Attribute.Date;
-    epitaph: Schema.Attribute.String;
-    family: Schema.Attribute.Relation<'manyToOne', 'api::family.family'>;
+    dates: Schema.Attribute.JSON;
     full_name: Schema.Attribute.String & Schema.Attribute.Required;
-    genealogy_relations_as_a: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::genealogy-relation.genealogy-relation'
-    >;
-    genealogy_relations_as_b: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::genealogy-relation.genealogy-relation'
-    >;
-    guestbooks: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::guestbook.guestbook'
-    >;
-    is_public: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    lifecycle_status: Schema.Attribute.Enumeration<['draft', 'published']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'draft'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
-      'api::memorial.memorial'
+      'api::tombstone.tombstone'
     > &
       Schema.Attribute.Private;
-    memory_assets: Schema.Attribute.Relation<
+    permissions: Schema.Attribute.Relation<
       'oneToMany',
-      'api::memory-asset.memory-asset'
+      'api::tombstone-permission.tombstone-permission'
     >;
-    owner: Schema.Attribute.Relation<
-      'manyToOne',
-      'plugin::users-permissions.user'
-    > &
-      Schema.Attribute.Required;
     profile_image: Schema.Attribute.Media<'images'>;
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'full_name'> & Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiMemoryAssetMemoryAsset extends Struct.CollectionTypeSchema {
-  collectionName: 'memory_assets';
-  info: {
-    description: 'Il Diamante - Ricordi multimediali';
-    displayName: 'Memory Asset';
-    pluralName: 'memory-assets';
-    singularName: 'memory-asset';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    event_date: Schema.Attribute.Date;
-    file: Schema.Attribute.Media<'images' | 'videos' | 'files' | 'audios'> &
-      Schema.Attribute.Required;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::memory-asset.memory-asset'
-    > &
-      Schema.Attribute.Private;
-    memorial: Schema.Attribute.Relation<'manyToOne', 'api::memorial.memorial'>;
-    publishedAt: Schema.Attribute.DateTime;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1129,6 +1071,7 @@ export interface PluginUsersPermissionsUser
     draftAndPublish: false;
   };
   attributes: {
+    agencies: Schema.Attribute.Relation<'manyToMany', 'api::agency.agency'>;
     birth_date: Schema.Attribute.Date;
     birth_place: Schema.Attribute.String;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -1137,15 +1080,12 @@ export interface PluginUsersPermissionsUser
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    credits: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     email: Schema.Attribute.Email &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
-    family_memberships: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::family-member.family-member'
-    >;
     first_name: Schema.Attribute.String;
     fiscal_code: Schema.Attribute.String;
     gender: Schema.Attribute.Enumeration<['M', 'F']>;
@@ -1156,7 +1096,10 @@ export interface PluginUsersPermissionsUser
       'plugin::users-permissions.user'
     > &
       Schema.Attribute.Private;
-    memorials: Schema.Attribute.Relation<'oneToMany', 'api::memorial.memorial'>;
+    managed_agency: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::agency.agency'
+    >;
     password: Schema.Attribute.Password &
       Schema.Attribute.Private &
       Schema.Attribute.SetMinMaxLength<{
@@ -1166,11 +1109,14 @@ export interface PluginUsersPermissionsUser
     provider: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     resetPasswordToken: Schema.Attribute.String & Schema.Attribute.Private;
-    residence: Schema.Attribute.String;
     role: Schema.Attribute.Relation<
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    role_type: Schema.Attribute.Enumeration<
+      ['individual', 'agency_admin', 'agency_staff']
+    > &
+      Schema.Attribute.DefaultTo<'individual'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1180,6 +1126,7 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 3;
       }>;
+    wallet_address: Schema.Attribute.String & Schema.Attribute.Unique;
   };
 }
 
@@ -1194,12 +1141,10 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
-      'api::family-member.family-member': ApiFamilyMemberFamilyMember;
-      'api::family.family': ApiFamilyFamily;
-      'api::genealogy-relation.genealogy-relation': ApiGenealogyRelationGenealogyRelation;
-      'api::guestbook.guestbook': ApiGuestbookGuestbook;
-      'api::memorial.memorial': ApiMemorialMemorial;
-      'api::memory-asset.memory-asset': ApiMemoryAssetMemoryAsset;
+      'api::agency.agency': ApiAgencyAgency;
+      'api::contribution.contribution': ApiContributionContribution;
+      'api::tombstone-permission.tombstone-permission': ApiTombstonePermissionTombstonePermission;
+      'api::tombstone.tombstone': ApiTombstoneTombstone;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;
