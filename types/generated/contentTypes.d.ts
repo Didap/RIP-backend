@@ -606,6 +606,7 @@ export interface ApiTombstoneTombstone extends Struct.CollectionTypeSchema {
     >;
     profile_image: Schema.Attribute.Media<'images'>;
     publishedAt: Schema.Attribute.DateTime;
+    slogan: Schema.Attribute.String;
     slug: Schema.Attribute.UID<'full_name'> & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

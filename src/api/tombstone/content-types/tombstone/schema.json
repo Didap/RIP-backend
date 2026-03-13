@@ -20,6 +20,9 @@
       "type": "string",
       "required": true
     },
+    "slogan": {
+      "type": "string"
+    },
     "dates": {
       "type": "json"
     },
