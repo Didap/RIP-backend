@@ -594,6 +594,7 @@ export interface ApiTombstoneTombstone extends Struct.CollectionTypeSchema {
     lifecycle_status: Schema.Attribute.Enumeration<['draft', 'published']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'draft'>;
+    link: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

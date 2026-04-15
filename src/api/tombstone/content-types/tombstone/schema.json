@@ -69,6 +69,9 @@
       "relation": "manyToOne",
       "target": "api::agency.agency",
       "inversedBy": "tombstones"
+    },
+    "link": {
+      "type": "string"
     }
   }
 }
