@@ -13,10 +13,10 @@ const config = ({
       },
       actionOptions: {
         upload: {
-          folder: "Rip",
+          folder: env("CLOUDINARY_FOLDER", "Rip"),
         },
         uploadStream: {
-          folder: "Rip",
+          folder: env("CLOUDINARY_FOLDER", "Rip"),
         },
         delete: {},
       },

@@ -24,7 +24,7 @@
     },
     "content_type": {
       "type": "enumeration",
-      "enum": ["photo", "video", "audio", "text"],
+      "enum": ["photo", "video", "audio", "text", "flower", "candle"],
       "required": true
     },
     "text_content": {

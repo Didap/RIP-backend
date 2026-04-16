@@ -496,7 +496,7 @@ export interface ApiContributionContribution
       'plugin::users-permissions.user'
     >;
     content_type: Schema.Attribute.Enumeration<
-      ['photo', 'video', 'audio', 'text']
+      ['photo', 'video', 'audio', 'text', 'flower', 'candle']
     > &
       Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
@@ -609,6 +609,9 @@ export interface ApiTombstoneTombstone extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     slogan: Schema.Attribute.String;
     slug: Schema.Attribute.UID<'full_name'> & Schema.Attribute.Required;
+    template: Schema.Attribute.Enumeration<['classic', 'elegant', 'modern']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'classic'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1128,7 +1131,6 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 3;
       }>;
-    wallet_address: Schema.Attribute.String & Schema.Attribute.Unique;
   };
 }
 

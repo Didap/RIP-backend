@@ -72,6 +72,12 @@
     },
     "link": {
       "type": "string"
+    },
+    "template": {
+      "type": "enumeration",
+      "enum": ["classic", "elegant", "modern"],
+      "default": "classic",
+      "required": true
     }
   }
 }

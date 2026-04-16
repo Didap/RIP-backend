@@ -13,7 +13,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-04-15T10:53:38.675Z"
+    "x-generation-date": "2026-04-16T15:08:42.625Z"
   },
   "openapi": "3.0.0",
   "x-strapi-config": {
@@ -4804,9 +4804,6 @@
               "credits": {
                 "type": "integer"
               },
-              "wallet_address": {
-                "type": "string"
-              },
               "managed_agency": {
                 "type": "object",
                 "properties": {
@@ -5630,7 +5627,9 @@
                                   "photo",
                                   "video",
                                   "audio",
-                                  "text"
+                                  "text",
+                                  "flower",
+                                  "candle"
                                 ]
                               },
                               "text_content": {
@@ -5915,6 +5914,14 @@
                         },
                         "link": {
                           "type": "string"
+                        },
+                        "template": {
+                          "type": "string",
+                          "enum": [
+                            "classic",
+                            "elegant",
+                            "modern"
+                          ]
                         },
                         "createdAt": {
                           "type": "string",
@@ -6384,7 +6391,9 @@
                   "photo",
                   "video",
                   "audio",
-                  "text"
+                  "text",
+                  "flower",
+                  "candle"
                 ]
               },
               "text_content": {
@@ -7827,9 +7836,6 @@
                         "credits": {
                           "type": "integer"
                         },
-                        "wallet_address": {
-                          "type": "string"
-                        },
                         "managed_agency": {
                           "type": "object",
                           "properties": {
@@ -8425,7 +8431,9 @@
                         "photo",
                         "video",
                         "audio",
-                        "text"
+                        "text",
+                        "flower",
+                        "candle"
                       ]
                     },
                     "text_content": {
@@ -8711,6 +8719,14 @@
               "link": {
                 "type": "string"
               },
+              "template": {
+                "type": "string",
+                "enum": [
+                  "classic",
+                  "elegant",
+                  "modern"
+                ]
+              },
               "createdAt": {
                 "type": "string",
                 "format": "date-time"
@@ -8809,7 +8825,9 @@
               "photo",
               "video",
               "audio",
-              "text"
+              "text",
+              "flower",
+              "candle"
             ]
           },
           "text_content": {
@@ -9088,7 +9106,8 @@
             "required": [
               "slug",
               "full_name",
-              "lifecycle_status"
+              "lifecycle_status",
+              "template"
             ],
             "type": "object",
             "properties": {
@@ -9182,6 +9201,14 @@
               "link": {
                 "type": "string"
               },
+              "template": {
+                "type": "string",
+                "enum": [
+                  "classic",
+                  "elegant",
+                  "modern"
+                ]
+              },
               "locale": {
                 "type": "string"
               },
@@ -9243,7 +9270,8 @@
         "required": [
           "slug",
           "full_name",
-          "lifecycle_status"
+          "lifecycle_status",
+          "template"
         ],
         "properties": {
           "id": {
@@ -10588,9 +10616,6 @@
                     "credits": {
                       "type": "integer"
                     },
-                    "wallet_address": {
-                      "type": "string"
-                    },
                     "managed_agency": {
                       "type": "object",
                       "properties": {
@@ -11298,7 +11323,9 @@
                                         "photo",
                                         "video",
                                         "audio",
-                                        "text"
+                                        "text",
+                                        "flower",
+                                        "candle"
                                       ]
                                     },
                                     "text_content": {
@@ -11583,6 +11610,14 @@
                               },
                               "link": {
                                 "type": "string"
+                              },
+                              "template": {
+                                "type": "string",
+                                "enum": [
+                                  "classic",
+                                  "elegant",
+                                  "modern"
+                                ]
                               },
                               "createdAt": {
                                 "type": "string",
@@ -11976,6 +12011,14 @@
           },
           "link": {
             "type": "string"
+          },
+          "template": {
+            "type": "string",
+            "enum": [
+              "classic",
+              "elegant",
+              "modern"
+            ]
           },
           "createdAt": {
             "type": "string",
@@ -12830,9 +12873,6 @@
               },
               "credits": {
                 "type": "integer"
-              },
-              "wallet_address": {
-                "type": "string"
               },
               "managed_agency": {
                 "type": "object",
@@ -13952,7 +13992,9 @@
                                   "photo",
                                   "video",
                                   "audio",
-                                  "text"
+                                  "text",
+                                  "flower",
+                                  "candle"
                                 ]
                               },
                               "text_content": {
@@ -14237,6 +14279,14 @@
                         },
                         "link": {
                           "type": "string"
+                        },
+                        "template": {
+                          "type": "string",
+                          "enum": [
+                            "classic",
+                            "elegant",
+                            "modern"
+                          ]
                         },
                         "createdAt": {
                           "type": "string",

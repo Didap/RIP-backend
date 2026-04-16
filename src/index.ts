@@ -107,6 +107,9 @@ export default {
    */
   async bootstrap({ strapi }) {
     const { seedPermissions } = require('../scripts/seed-permissions');
+    const { seedMemorials } = require('../scripts/seed-memorials');
+    
     await seedPermissions(strapi);
+    await seedMemorials(strapi);
   },
 };

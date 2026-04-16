@@ -80,7 +80,10 @@
     },
     "gender": {
       "type": "enumeration",
-      "enum": ["M", "F"]
+      "enum": [
+        "M",
+        "F"
+      ]
     },
     "phone": {
       "type": "string"
@@ -90,16 +93,16 @@
     },
     "role_type": {
       "type": "enumeration",
-      "enum": ["individual", "agency_admin", "agency_staff"],
-      "default": "individual"
+      "default": "individual",
+      "enum": [
+        "individual",
+        "agency_admin",
+        "agency_staff"
+      ]
     },
     "credits": {
       "type": "integer",
       "default": 0
-    },
-    "wallet_address": {
-      "type": "string",
-      "unique": true
     },
     "managed_agency": {
       "type": "relation",
