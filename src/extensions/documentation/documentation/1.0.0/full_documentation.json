@@ -1,7 +1,7 @@
 {
   "info": {
     "version": "1.0.0",
-    "title": "MEMORA.LIFE API",
+    "title": "RIP API",
     "description": "Documentazione per Postman/Swagger",
     "termsOfService": "YOUR_TERMS_OF_SERVICE_URL",
     "contact": {
@@ -13,7 +13,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-04-16T15:08:42.625Z"
+    "x-generation-date": "2026-04-17T14:38:49.681Z"
   },
   "openapi": "3.0.0",
   "x-strapi-config": {

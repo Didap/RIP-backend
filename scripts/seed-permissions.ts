@@ -1,5 +1,5 @@
 /**
- * Permission Seeding Script for Memora.life
+ * Permission Seeding Script for RIP
  * 
  * Defines the complete permission map for Public and Authenticated roles.
  * Called from bootstrap in src/index.ts on every server start.
@@ -19,6 +19,9 @@ const PERMISSION_MAP: PermissionEntry[] = [
   // ── Tombstones ──
   { action: 'api::tombstone.tombstone.find',       public: true,  authenticated: true  },
   { action: 'api::tombstone.tombstone.findOne',    public: true,  authenticated: true  },
+  { action: 'api::tombstone.tombstone.findOneBySlug', public: true, authenticated: true },
+  { action: 'api::tombstone.tombstone.getFeed',             public: true, authenticated: true },
+  { action: 'api::tombstone.tombstone.createContribution',  public: true, authenticated: true },
   { action: 'api::tombstone.tombstone.create',     public: false, authenticated: true  },
   { action: 'api::tombstone.tombstone.update',     public: false, authenticated: true  },
   { action: 'api::tombstone.tombstone.delete',     public: false, authenticated: true  },

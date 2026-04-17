@@ -27,7 +27,7 @@ const config = ({
     config: {
       info: {
         version: "1.0.0",
-        title: "MEMORA.LIFE API",
+        title: "RIP API",
         description: "Documentazione per Postman/Swagger",
       },
     },

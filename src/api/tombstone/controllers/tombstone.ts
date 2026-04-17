@@ -14,14 +14,25 @@ export default factories.createCoreController('api::tombstone.tombstone', ({ str
     return await super.create(ctx);
   },
 
-  async findMemorialBySlug(ctx) {
+  async findOneBySlug(ctx) {
     const { slug } = ctx.params;
-    const service = strapi.service('api::tombstone.tombstone') as any;
-    const memorial = await service.findMemorialBySlug(slug);
-    if (!memorial) {
-      return ctx.notFound('Memoriale non trovato');
+    console.log(`📡 [CONTROLLER] Incoming request for slug: "${slug}"`);
+    
+    try {
+      const service = strapi.service('api::tombstone.tombstone') as any;
+      const tombstone = await service.findOneBySlug(slug);
+      
+      if (!tombstone) {
+        console.log(`⚠️  [CONTROLLER] Service returned null for slug: "${slug}"`);
+        return ctx.notFound('Tombstone non trovato');
+      }
+      
+      console.log(`✨ [CONTROLLER] Successfully found tombstone: ${tombstone.full_name}`);
+      return ctx.send({ data: tombstone });
+    } catch (err: any) {
+      console.error(`💥 [CONTROLLER] ERROR searching for slug "${slug}":`, err.message);
+      return ctx.internalServerError(`Errore durante la ricerca: ${err.message}`);
     }
-    return ctx.send({ data: memorial });
   },
 
   async getFeed(ctx) {

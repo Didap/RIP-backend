@@ -1,7 +1,13 @@
 import { factories } from '@strapi/strapi';
 
 export default factories.createCoreService('api::tombstone.tombstone', ({ strapi }) => ({
-  async findMemorialBySlug(slug: string) {
+  async findOneBySlug(slug: string) {
+    console.log(`🔍 [SERVICE] Searching for tombstone with slug: "${slug}"`);
+    
+    // Check total count just to see if DB has data
+    const totalCount = await strapi.entityService.count('api::tombstone.tombstone');
+    console.log(`📊 [SERVICE] Total tombstones in DB: ${totalCount}`);
+
     const results = await strapi.entityService.findMany('api::tombstone.tombstone', {
       filters: { slug, lifecycle_status: 'published' },
       populate: {
@@ -13,22 +19,24 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
             author: { fields: ['username', 'first_name', 'last_name'] },
             media: { fields: ['url', 'alternativeText'] },
           },
-          sort: 'createdAt:desc',
-          limit: 100,
         },
         connections: {
           populate: {
             user: { fields: ['username', 'first_name', 'last_name'] },
-            relation_type: true,
-            notes: true,
           },
         },
       },
     });
 
-    if (!results || results.length === 0) return null;
-
+    console.log(`📦 [SERVICE] Query returned ${results?.length || 0} results for slug "${slug}"`);
+    
+    if (!results || results.length === 0) {
+      console.log(`❌ [SERVICE] No results found for slug: "${slug}" with lifecycle_status: "published"`);
+      return null;
+    }
+    
     const m = results[0] as any;
+    console.log(`✅ [SERVICE] Tombstone found: ${m.full_name} (ID: ${m.id})`);
     const contributions = m.contributions || [];
     const flowers = contributions.filter((c: any) => c.content_type === 'flower').length;
     const candles = contributions.filter((c: any) => c.content_type === 'candle').length;

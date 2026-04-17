@@ -111,5 +111,24 @@ export default {
     
     await seedPermissions(strapi);
     await seedMemorials(strapi);
+
+    // --- SYSTEM: Ensure user-agency link for dashboard ---
+    console.log('--- SYSTEM: ENSURING USER-AGENCY ASSOCIATION ---');
+    const firstUser = await strapi.entityService.findMany('plugin::users-permissions.user', { limit: 1 });
+    const firstAgency = await strapi.entityService.findMany('api::agency.agency', { limit: 1 });
+
+    if (firstUser.length > 0 && firstAgency.length > 0) {
+      const user = firstUser[0];
+      const agency = firstAgency[0];
+      
+      // Update user with agency link if missing
+      await strapi.entityService.update('plugin::users-permissions.user', user.id, {
+        data: {
+          managed_agency: agency.id,
+          agencies: [agency.id]
+        }
+      });
+      console.log(`--- SYSTEM: LINKED USER ${user.username} TO AGENCY ${agency.name} ---`);
+    }
   },
 };
