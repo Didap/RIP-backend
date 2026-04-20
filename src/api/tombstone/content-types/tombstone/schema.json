@@ -78,6 +78,22 @@
       "enum": ["classic", "elegant", "modern"],
       "default": "classic",
       "required": true
+    },
+    "city": {
+      "type": "string"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["persona", "animale"],
+      "default": "persona",
+      "required": true
+    },
+    "animal_type": {
+      "type": "enumeration",
+      "enum": ["cane", "gatto", "altro"]
+    },
+    "funeral_home": {
+      "type": "string"
     }
   }
 }

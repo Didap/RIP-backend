@@ -28,5 +28,14 @@ export default {
         policies: [] as string[],
       },
     },
+    {
+      method: 'GET' as const,
+      path: '/tombstones/explore',
+      handler: 'tombstone.getExploreList',
+      config: {
+        auth: false,
+        policies: [] as string[],
+      },
+    },
   ],
 };

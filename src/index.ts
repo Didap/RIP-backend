@@ -112,6 +112,10 @@ export default {
     await seedPermissions(strapi);
     await seedMemorials(strapi);
 
+    // Link uploaded images to memorials (one-time)
+    const { linkImages } = require('../scripts/link-images');
+    await linkImages(strapi);
+
     // --- SYSTEM: Ensure user-agency link for dashboard ---
     console.log('--- SYSTEM: ENSURING USER-AGENCY ASSOCIATION ---');
     const firstUser = await strapi.entityService.findMany('plugin::users-permissions.user', { limit: 1 });

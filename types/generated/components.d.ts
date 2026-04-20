@@ -26,6 +26,8 @@ export interface RelationConnection extends Struct.ComponentSchema {
         'Genero/Nuora',
         'Cognato/a',
         'Amico',
+        'Padrone',
+        'Proprietario',
         'Altro',
       ]
     > &

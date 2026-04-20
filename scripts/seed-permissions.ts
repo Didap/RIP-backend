@@ -21,6 +21,7 @@ const PERMISSION_MAP: PermissionEntry[] = [
   { action: 'api::tombstone.tombstone.findOne',    public: true,  authenticated: true  },
   { action: 'api::tombstone.tombstone.findOneBySlug', public: true, authenticated: true },
   { action: 'api::tombstone.tombstone.getFeed',             public: true, authenticated: true },
+  { action: 'api::tombstone.tombstone.getExploreList',      public: true, authenticated: true },
   { action: 'api::tombstone.tombstone.createContribution',  public: true, authenticated: true },
   { action: 'api::tombstone.tombstone.create',     public: false, authenticated: true  },
   { action: 'api::tombstone.tombstone.update',     public: false, authenticated: true  },

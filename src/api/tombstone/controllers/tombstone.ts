@@ -35,6 +35,15 @@ export default factories.createCoreController('api::tombstone.tombstone', ({ str
     }
   },
 
+  async getExploreList(ctx) {
+    const queryType = ctx.query.type as string | undefined;
+    const queryCity = ctx.query.city as string | undefined;
+    const querySearch = ctx.query.search as string | undefined;
+    const service = strapi.service('api::tombstone.tombstone') as any;
+    const result = await service.getExploreList(queryType, queryCity, querySearch);
+    return ctx.send(result);
+  },
+
   async getFeed(ctx) {
     const queryPage = ctx.query.page as string | undefined;
     const queryPageSize = ctx.query.pageSize as string | undefined;

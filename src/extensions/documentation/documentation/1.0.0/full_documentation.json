@@ -13,7 +13,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-04-17T14:38:49.681Z"
+    "x-generation-date": "2026-04-20T14:53:34.827Z"
   },
   "openapi": "3.0.0",
   "x-strapi-config": {
@@ -5923,6 +5923,27 @@
                             "modern"
                           ]
                         },
+                        "city": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "persona",
+                            "animale"
+                          ]
+                        },
+                        "animal_type": {
+                          "type": "string",
+                          "enum": [
+                            "cane",
+                            "gatto",
+                            "altro"
+                          ]
+                        },
+                        "funeral_home": {
+                          "type": "string"
+                        },
                         "createdAt": {
                           "type": "string",
                           "format": "date-time"
@@ -6343,6 +6364,8 @@
               "Genero/Nuora",
               "Cognato/a",
               "Amico",
+              "Padrone",
+              "Proprietario",
               "Altro"
             ]
           },
@@ -8727,6 +8750,27 @@
                   "modern"
                 ]
               },
+              "city": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "persona",
+                  "animale"
+                ]
+              },
+              "animal_type": {
+                "type": "string",
+                "enum": [
+                  "cane",
+                  "gatto",
+                  "altro"
+                ]
+              },
+              "funeral_home": {
+                "type": "string"
+              },
               "createdAt": {
                 "type": "string",
                 "format": "date-time"
@@ -9107,7 +9151,8 @@
               "slug",
               "full_name",
               "lifecycle_status",
-              "template"
+              "template",
+              "type"
             ],
             "type": "object",
             "properties": {
@@ -9209,6 +9254,27 @@
                   "modern"
                 ]
               },
+              "city": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "persona",
+                  "animale"
+                ]
+              },
+              "animal_type": {
+                "type": "string",
+                "enum": [
+                  "cane",
+                  "gatto",
+                  "altro"
+                ]
+              },
+              "funeral_home": {
+                "type": "string"
+              },
               "locale": {
                 "type": "string"
               },
@@ -9271,7 +9337,8 @@
           "slug",
           "full_name",
           "lifecycle_status",
-          "template"
+          "template",
+          "type"
         ],
         "properties": {
           "id": {
@@ -11619,6 +11686,27 @@
                                   "modern"
                                 ]
                               },
+                              "city": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "persona",
+                                  "animale"
+                                ]
+                              },
+                              "animal_type": {
+                                "type": "string",
+                                "enum": [
+                                  "cane",
+                                  "gatto",
+                                  "altro"
+                                ]
+                              },
+                              "funeral_home": {
+                                "type": "string"
+                              },
                               "createdAt": {
                                 "type": "string",
                                 "format": "date-time"
@@ -12019,6 +12107,27 @@
               "elegant",
               "modern"
             ]
+          },
+          "city": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "persona",
+              "animale"
+            ]
+          },
+          "animal_type": {
+            "type": "string",
+            "enum": [
+              "cane",
+              "gatto",
+              "altro"
+            ]
+          },
+          "funeral_home": {
+            "type": "string"
           },
           "createdAt": {
             "type": "string",
@@ -14287,6 +14396,27 @@
                             "elegant",
                             "modern"
                           ]
+                        },
+                        "city": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "persona",
+                            "animale"
+                          ]
+                        },
+                        "animal_type": {
+                          "type": "string",
+                          "enum": [
+                            "cane",
+                            "gatto",
+                            "altro"
+                          ]
+                        },
+                        "funeral_home": {
+                          "type": "string"
                         },
                         "createdAt": {
                           "type": "string",

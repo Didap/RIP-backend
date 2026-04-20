@@ -59,8 +59,68 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
         candles,
         memories: contributions.length - flowers - candles,
       },
+      city: m.city || null,
+      type: m.type || 'persona',
+      animal_type: m.animal_type || null,
+      funeral_home: m.funeral_home || null,
       createdAt: m.createdAt,
     };
+  },
+
+  async getExploreList(type?: string, city?: string, search?: string) {
+    const filters: any = { lifecycle_status: 'published' };
+    if (type) filters.type = type;
+    if (city) filters.city = city;
+
+    const results = await strapi.entityService.findMany('api::tombstone.tombstone', {
+      filters,
+      populate: {
+        profile_image: { fields: ['url', 'alternativeText', 'width', 'height'] },
+        cover_image: { fields: ['url', 'alternativeText', 'width', 'height'] },
+        contributions: { fields: ['content_type'] },
+      },
+      sort: 'createdAt:desc',
+      limit: 100,
+    });
+
+    let items = (results || []).map((m: any) => {
+      const contributions = m.contributions || [];
+      const flowers = contributions.filter((c: any) => c.content_type === 'flower').length;
+      const candles = contributions.filter((c: any) => c.content_type === 'candle').length;
+      return {
+        id: m.documentId || m.id,
+        full_name: m.full_name,
+        biography: m.biography || null,
+        dates: m.dates || null,
+        template: m.template || 'classic',
+        slug: m.slug,
+        profile_image: m.profile_image || null,
+        cover_image: m.cover_image || null,
+        connections: [],
+        contributions: [],
+        stats: {
+          total: contributions.length,
+          flowers,
+          candles,
+          memories: contributions.length - flowers - candles,
+        },
+        city: m.city || null,
+        type: m.type || 'persona',
+        animal_type: m.animal_type || null,
+        funeral_home: m.funeral_home || null,
+        createdAt: m.createdAt,
+      };
+    });
+
+    if (search) {
+      const q = search.toLowerCase();
+      items = items.filter((m: any) =>
+        m.full_name?.toLowerCase().includes(q) ||
+        m.city?.toLowerCase().includes(q)
+      );
+    }
+
+    return { data: items };
   },
 
   async getFeed(page: number, pageSize: number) {
@@ -104,6 +164,9 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
         template: m.template,
         profile_image: m.profile_image || null,
         dates: m.dates || null,
+        city: m.city || null,
+        memorial_type: m.type || 'persona',
+        animal_type: m.animal_type || null,
         timestamp: m.createdAt,
       })),
       ...contributions.map((c: any) => ({
@@ -145,6 +208,8 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
       return { error: 'content_type non valido' };
     }
 
+    console.log(`📝 [SERVICE] Creating contribution: ${content_type} for slug: ${slug}`);
+
     const memorials = await strapi.entityService.findMany(
       'api::tombstone.tombstone',
       {
@@ -153,21 +218,26 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
     );
 
     if (!memorials || memorials.length === 0) {
+      console.log(`⚠️ [SERVICE] Memorial not found or not published: ${slug}`);
       return null;
     }
+
+    const memorial = memorials[0];
+    const isAutoApproved = ['flower', 'candle'].includes(content_type);
 
     const contribution = await strapi.entityService.create(
       'api::contribution.contribution',
       {
         data: {
-          tombstone: memorials[0].documentId || memorials[0].id,
-          content_type: content_type as 'photo' | 'video' | 'audio' | 'text' | 'flower' | 'candle',
+          tombstone: memorial.documentId || memorial.id,
+          content_type: content_type as any,
           text_content: text_content || null,
-          is_approved: false,
+          is_approved: isAutoApproved,
         },
       }
     );
 
+    console.log(`✅ [SERVICE] Contribution created: ${contribution.id} (Approved: ${isAutoApproved})`);
     return { data: contribution };
   },
 }));

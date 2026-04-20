@@ -579,7 +579,9 @@ export interface ApiTombstoneTombstone extends Struct.CollectionTypeSchema {
   };
   attributes: {
     agency: Schema.Attribute.Relation<'manyToOne', 'api::agency.agency'>;
+    animal_type: Schema.Attribute.Enumeration<['cane', 'gatto', 'altro']>;
     biography: Schema.Attribute.RichText;
+    city: Schema.Attribute.String;
     connections: Schema.Attribute.Component<'relation.connection', true>;
     contributions: Schema.Attribute.Relation<
       'oneToMany',
@@ -591,6 +593,7 @@ export interface ApiTombstoneTombstone extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     dates: Schema.Attribute.JSON;
     full_name: Schema.Attribute.String & Schema.Attribute.Required;
+    funeral_home: Schema.Attribute.String;
     lifecycle_status: Schema.Attribute.Enumeration<['draft', 'published']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'draft'>;
@@ -612,6 +615,9 @@ export interface ApiTombstoneTombstone extends Struct.CollectionTypeSchema {
     template: Schema.Attribute.Enumeration<['classic', 'elegant', 'modern']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'classic'>;
+    type: Schema.Attribute.Enumeration<['persona', 'animale']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'persona'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
