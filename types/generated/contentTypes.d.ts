@@ -447,6 +447,7 @@ export interface ApiAgencyAgency extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    credits: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     email: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -502,6 +503,8 @@ export interface ApiContributionContribution
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    event_date: Schema.Attribute.Date;
+    is_anonymous: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     is_approved: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -519,6 +522,40 @@ export interface ApiContributionContribution
       'manyToOne',
       'api::tombstone.tombstone'
     >;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiCreditTransactionCreditTransaction
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'credit_transactions';
+  info: {
+    description: 'Log of credit consumption and recharges';
+    displayName: 'Credit Transaction';
+    pluralName: 'credit-transactions';
+    singularName: 'credit-transaction';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    agency: Schema.Attribute.Relation<'manyToOne', 'api::agency.agency'>;
+    amount: Schema.Attribute.Integer & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::credit-transaction.credit-transaction'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    type: Schema.Attribute.Enumeration<['generation', 'recharge']> &
+      Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -591,6 +628,7 @@ export interface ApiTombstoneTombstone extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    customization: Schema.Attribute.JSON;
     dates: Schema.Attribute.JSON;
     full_name: Schema.Attribute.String & Schema.Attribute.Required;
     funeral_home: Schema.Attribute.String;
@@ -1153,6 +1191,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::agency.agency': ApiAgencyAgency;
       'api::contribution.contribution': ApiContributionContribution;
+      'api::credit-transaction.credit-transaction': ApiCreditTransactionCreditTransaction;
       'api::tombstone-permission.tombstone-permission': ApiTombstonePermissionTombstonePermission;
       'api::tombstone.tombstone': ApiTombstoneTombstone;
       'plugin::content-releases.release': PluginContentReleasesRelease;

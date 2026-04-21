@@ -39,6 +39,11 @@ const PERMISSION_MAP: PermissionEntry[] = [
   { action: 'api::agency.agency.findOne',  public: true,  authenticated: true  },
   { action: 'api::agency.agency.create',   public: false, authenticated: true  },
   { action: 'api::agency.agency.update',   public: false, authenticated: true  },
+  { action: 'api::agency.agency.recharge', public: false, authenticated: true  },
+
+  // ── Credit Transactions ──
+  { action: 'api::credit-transaction.credit-transaction.find',     public: false, authenticated: true },
+  { action: 'api::credit-transaction.credit-transaction.findOne',  public: false, authenticated: true },
 
   // ── Tombstone Permissions (ACL) ──
   { action: 'api::tombstone-permission.tombstone-permission.find',     public: false, authenticated: true },

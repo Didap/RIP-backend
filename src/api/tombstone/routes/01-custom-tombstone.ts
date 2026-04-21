@@ -24,7 +24,6 @@ export default {
       path: '/tombstones/tombstone/:slug/contribute',
       handler: 'tombstone.createContribution',
       config: {
-        auth: false,
         policies: [] as string[],
       },
     },

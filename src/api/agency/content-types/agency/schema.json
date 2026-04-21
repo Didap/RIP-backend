@@ -58,6 +58,10 @@
       "relation": "oneToMany",
       "target": "api::tombstone.tombstone",
       "mappedBy": "agency"
+    },
+    "credits": {
+      "type": "integer",
+      "default": 0
     }
   }
 }

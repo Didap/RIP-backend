@@ -5,7 +5,6 @@ export default {
    * your application is initialized.
    */
   register({ strapi }) {
-    console.log('--- SYSTEM: REGISTERING CUSTOM AUTH LOGIC ---');
 
     const plugin = strapi.plugin('users-permissions');
 
@@ -16,7 +15,6 @@ export default {
         const registerRoute = routes.find(r => r.path === '/auth/local/register' && r.method === 'POST');
         
         if (registerRoute) {
-          console.log(`--- SYSTEM: DISABLING VALIDATOR FOR ${type} REGISTER ROUTE ---`);
           if (registerRoute.request) {
             delete registerRoute.request.body;
           }
@@ -37,7 +35,6 @@ export default {
       }
 
       try {
-        console.log(`--- SYSTEM: MANUAL REGISTRATION FOR ${email} ---`);
 
         // Check if user already exists
         const existingUser = await strapi.query('plugin::users-permissions.user').findOne({
@@ -79,7 +76,6 @@ export default {
           },
         });
 
-        console.log(`--- SYSTEM: USER ${newUser.id} CREATED SUCCESSFULLY ---`);
 
         // Generate JWT
         const jwt = strapi.plugin('users-permissions').service('jwt').issue({
@@ -93,9 +89,7 @@ export default {
             populate: ['role', 'managed_agency', 'agencies']
           })
         };
-
       } catch (err: any) {
-        console.error(`--- SYSTEM: REGISTRATION FAILED ---`, err.message);
         return ctx.badRequest(err.message);
       }
     };
@@ -116,23 +110,19 @@ export default {
     const { linkImages } = require('../scripts/link-images');
     await linkImages(strapi);
 
-    // --- SYSTEM: Ensure user-agency link for dashboard ---
-    console.log('--- SYSTEM: ENSURING USER-AGENCY ASSOCIATION ---');
+    // Ensure user-agency association
     const firstUser = await strapi.entityService.findMany('plugin::users-permissions.user', { limit: 1 });
     const firstAgency = await strapi.entityService.findMany('api::agency.agency', { limit: 1 });
 
     if (firstUser.length > 0 && firstAgency.length > 0) {
       const user = firstUser[0];
       const agency = firstAgency[0];
-      
-      // Update user with agency link if missing
       await strapi.entityService.update('plugin::users-permissions.user', user.id, {
         data: {
           managed_agency: agency.id,
           agencies: [agency.id]
         }
       });
-      console.log(`--- SYSTEM: LINKED USER ${user.username} TO AGENCY ${agency.name} ---`);
     }
   },
 };

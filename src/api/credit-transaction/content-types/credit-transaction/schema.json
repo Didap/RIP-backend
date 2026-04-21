@@ -1,0 +1,35 @@
+{
+  "kind": "collectionType",
+  "collectionName": "credit_transactions",
+  "info": {
+    "singularName": "credit-transaction",
+    "pluralName": "credit-transactions",
+    "displayName": "Credit Transaction",
+    "description": "Log of credit consumption and recharges"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "amount": {
+      "type": "integer",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "generation",
+        "recharge"
+      ],
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "agency": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::agency.agency"
+    }
+  }
+}

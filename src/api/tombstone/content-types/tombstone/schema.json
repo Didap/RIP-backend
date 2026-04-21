@@ -94,6 +94,9 @@
     },
     "funeral_home": {
       "type": "string"
+    },
+    "customization": {
+      "type": "json"
     }
   }
 }

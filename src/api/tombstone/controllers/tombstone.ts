@@ -2,35 +2,61 @@ import { factories } from '@strapi/strapi';
 
 export default factories.createCoreController('api::tombstone.tombstone', ({ strapi }) => ({
   async update(ctx) {
-    console.log('--- UPDATE REQUEST ---');
-    console.log('Body:', ctx.request.body);
-    console.log('Files:', ctx.request.files);
     return await super.update(ctx);
   },
   async create(ctx) {
-    console.log('--- CREATE REQUEST ---');
-    console.log('Body:', ctx.request.body);
-    console.log('Files:', ctx.request.files);
+    const { data } = (ctx.request as any).body;
+    
+    if (data && data.agency) {
+      const agencyId = data.agency;
+      const agency = await strapi.entityService.findOne('api::agency.agency', agencyId);
+      
+      if (!agency) {
+        return ctx.badRequest('Agenzia non valida');
+      }
+      
+      const COST = 100;
+      const currentCredits = agency.credits || 0;
+      
+      if (currentCredits < COST) {
+        return ctx.forbidden('Crediti insufficienti. Ricarica il tuo saldo per poter generare un nuovo memoriale.');
+      }
+      
+      // deduct credits
+      await strapi.entityService.update('api::agency.agency', agencyId, {
+        data: { credits: currentCredits - COST }
+      });
+      
+      // create the tombstone using core functionality
+      const result = await super.create(ctx);
+      const newId = result?.data?.id || 'Unknown';
+      
+      // log transaction
+      await strapi.entityService.create('api::credit-transaction.credit-transaction', {
+        data: {
+          amount: -COST,
+          type: 'generation',
+          description: `Generazione Memoriale #${newId}`,
+          agency: agencyId
+        }
+      });
+      
+      return result;
+    }
+    
     return await super.create(ctx);
   },
 
   async findOneBySlug(ctx) {
     const { slug } = ctx.params;
-    console.log(`📡 [CONTROLLER] Incoming request for slug: "${slug}"`);
-    
     try {
       const service = strapi.service('api::tombstone.tombstone') as any;
       const tombstone = await service.findOneBySlug(slug);
-      
       if (!tombstone) {
-        console.log(`⚠️  [CONTROLLER] Service returned null for slug: "${slug}"`);
         return ctx.notFound('Tombstone non trovato');
       }
-      
-      console.log(`✨ [CONTROLLER] Successfully found tombstone: ${tombstone.full_name}`);
       return ctx.send({ data: tombstone });
     } catch (err: any) {
-      console.error(`💥 [CONTROLLER] ERROR searching for slug "${slug}":`, err.message);
       return ctx.internalServerError(`Errore durante la ricerca: ${err.message}`);
     }
   },
@@ -56,9 +82,12 @@ export default factories.createCoreController('api::tombstone.tombstone', ({ str
 
   async createContribution(ctx) {
     const { slug } = ctx.params;
-    const { content_type, text_content } = ctx.request.body as any;
+    const { content_type, text_content, event_date, is_anonymous } = ctx.request.body as any;
+    const user = ctx.state.user;
+    const authorId = user ? (user.documentId || user.id) : null;
     const service = strapi.service('api::tombstone.tombstone') as any;
-    const result = await service.createContribution(slug, content_type, text_content);
+
+    const result = await service.createContribution(slug, content_type, text_content, event_date, is_anonymous, authorId);
 
     if (!result) {
       return ctx.notFound('Memoriale non trovato');

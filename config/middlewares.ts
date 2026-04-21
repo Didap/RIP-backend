@@ -29,7 +29,15 @@ const config: Core.Config.Middlewares = [
       },
     },
   },
-  'strapi::cors',
+  {
+    name: 'strapi::cors',
+    config: {
+      origin: ['*'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+      headers: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With'],
+      keepHeaderCase: true,
+    },
+  },
   'strapi::poweredBy',
   'strapi::query',
   'strapi::body',

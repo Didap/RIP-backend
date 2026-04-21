@@ -39,6 +39,13 @@
     "is_approved": {
       "type": "boolean",
       "default": false
+    },
+    "event_date": {
+      "type": "date"
+    },
+    "is_anonymous": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

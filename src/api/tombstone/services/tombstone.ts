@@ -2,11 +2,6 @@ import { factories } from '@strapi/strapi';
 
 export default factories.createCoreService('api::tombstone.tombstone', ({ strapi }) => ({
   async findOneBySlug(slug: string) {
-    console.log(`🔍 [SERVICE] Searching for tombstone with slug: "${slug}"`);
-    
-    // Check total count just to see if DB has data
-    const totalCount = await strapi.entityService.count('api::tombstone.tombstone');
-    console.log(`📊 [SERVICE] Total tombstones in DB: ${totalCount}`);
 
     const results = await strapi.entityService.findMany('api::tombstone.tombstone', {
       filters: { slug, lifecycle_status: 'published' },
@@ -28,15 +23,11 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
       },
     });
 
-    console.log(`📦 [SERVICE] Query returned ${results?.length || 0} results for slug "${slug}"`);
-    
     if (!results || results.length === 0) {
-      console.log(`❌ [SERVICE] No results found for slug: "${slug}" with lifecycle_status: "published"`);
       return null;
     }
-    
+
     const m = results[0] as any;
-    console.log(`✅ [SERVICE] Tombstone found: ${m.full_name} (ID: ${m.id})`);
     const contributions = m.contributions || [];
     const flowers = contributions.filter((c: any) => c.content_type === 'flower').length;
     const candles = contributions.filter((c: any) => c.content_type === 'candle').length;
@@ -52,7 +43,11 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
       profile_image: m.profile_image || null,
       cover_image: m.cover_image || null,
       connections: m.connections || [],
-      contributions,
+      contributions: (m.contributions || []).map((c: any) => ({
+        ...c,
+        author: c.is_anonymous ? null : c.author,
+      })),
+      contributions_raw: m.contributions || [], // Keep for internal use if needed
       stats: {
         total: contributions.length,
         flowers,
@@ -63,6 +58,7 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
       type: m.type || 'persona',
       animal_type: m.animal_type || null,
       funeral_home: m.funeral_home || null,
+      customization: m.customization || null,
       createdAt: m.createdAt,
     };
   },
@@ -124,17 +120,19 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
   },
 
   async getFeed(page: number, pageSize: number) {
-    const start = (page - 1) * pageSize;
+    const contributionLimit = Math.floor(pageSize * 0.7);
+    const memorialLimit = pageSize;
+    const memorialStart = (page - 1) * memorialLimit;
+    const contributionStart = (page - 1) * contributionLimit;
 
     const [memorials, contributions] = await Promise.all([
       strapi.entityService.findMany('api::tombstone.tombstone', {
-        filters: { lifecycle_status: 'published' },
         populate: {
           profile_image: { fields: ['url', 'alternativeText'] },
         },
         sort: 'createdAt:desc',
-        start,
-        limit: pageSize,
+        start: memorialStart,
+        limit: memorialLimit,
       }),
       strapi.entityService.findMany('api::contribution.contribution', {
         filters: {
@@ -149,48 +147,58 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
           author: { fields: ['username', 'first_name', 'last_name'] },
         },
         sort: 'createdAt:desc',
-        start: 0,
-        limit: pageSize,
+        start: contributionStart,
+        limit: contributionLimit,
       }),
     ]);
 
-    const feedItems = [
-      ...memorials.map((m: any) => ({
-        id: `m-${m.documentId || m.id}`,
-        type: 'memorial' as const,
-        full_name: m.full_name,
-        slug: m.slug,
-        slogan: m.slogan,
-        template: m.template,
-        profile_image: m.profile_image || null,
-        dates: m.dates || null,
-        city: m.city || null,
-        memorial_type: m.type || 'persona',
-        animal_type: m.animal_type || null,
-        timestamp: m.createdAt,
-      })),
-      ...contributions.map((c: any) => ({
-        id: `c-${c.documentId || c.id}`,
-        type: 'contribution' as const,
-        content_type: c.content_type,
-        text_content: c.text_content || null,
-        author: c.author || null,
-        tombstone: c.tombstone
-          ? {
-              full_name: c.tombstone.full_name,
-              slug: c.tombstone.slug,
-              template: c.tombstone.template,
-              profile_image: c.tombstone.profile_image || null,
-            }
-          : null,
-        timestamp: c.createdAt,
-      })),
-    ];
+    const memorialItems = (memorials || []).map((m: any) => ({
+      id: `m-${m.documentId || m.id}`,
+      type: 'memorial' as const,
+      full_name: m.full_name,
+      slug: m.slug,
+      slogan: m.slogan,
+      template: m.template,
+      profile_image: m.profile_image || null,
+      dates: m.dates || null,
+      city: m.city || null,
+      memorial_type: m.type || 'persona',
+      animal_type: m.animal_type || null,
+      timestamp: m.createdAt,
+    }));
 
-    feedItems.sort(
-      (a: any, b: any) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
+    const contributionItems = (contributions || []).map((c: any) => ({
+      id: `c-${c.documentId || c.id}`,
+      type: 'contribution' as const,
+      content_type: c.content_type,
+      text_content: c.text_content || null,
+      author: c.is_anonymous ? null : (c.author || null),
+      is_anonymous: !!c.is_anonymous,
+      tombstone: c.tombstone
+        ? {
+            full_name: c.tombstone.full_name,
+            slug: c.tombstone.slug,
+            template: c.tombstone.template,
+            profile_image: c.tombstone.profile_image || null,
+          }
+        : null,
+      timestamp: c.createdAt,
+    }));
+
+    // Interleave: insert one memorial before every 3rd contribution
+    const feedItems: any[] = [];
+    let mi = 0;
+    for (let ci = 0; ci < contributionItems.length; ci++) {
+      // Insert a memorial at positions 0, 3, 6...
+      if (ci % 3 === 0 && mi < memorialItems.length) {
+        feedItems.push(memorialItems[mi++]);
+      }
+      feedItems.push(contributionItems[ci]);
+    }
+    // Append any remaining memorials that didn't fit between contributions
+    while (mi < memorialItems.length) {
+      feedItems.push(memorialItems[mi++]);
+    }
 
     return {
       data: feedItems.slice(0, pageSize),
@@ -201,14 +209,15 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
   async createContribution(
     slug: string,
     content_type: string,
-    text_content?: string
+    text_content?: string,
+    event_date?: string,
+    is_anonymous?: boolean,
+    authorId?: string | number
   ) {
     const validTypes = ['flower', 'candle', 'text', 'photo'];
     if (!content_type || !validTypes.includes(content_type)) {
       return { error: 'content_type non valido' };
     }
-
-    console.log(`📝 [SERVICE] Creating contribution: ${content_type} for slug: ${slug}`);
 
     const memorials = await strapi.entityService.findMany(
       'api::tombstone.tombstone',
@@ -218,7 +227,6 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
     );
 
     if (!memorials || memorials.length === 0) {
-      console.log(`⚠️ [SERVICE] Memorial not found or not published: ${slug}`);
       return null;
     }
 
@@ -232,12 +240,14 @@ export default factories.createCoreService('api::tombstone.tombstone', ({ strapi
           tombstone: memorial.documentId || memorial.id,
           content_type: content_type as any,
           text_content: text_content || null,
+          event_date: event_date || null,
+          is_anonymous: !!is_anonymous,
+          author: authorId || null,
           is_approved: isAutoApproved,
         },
       }
     );
 
-    console.log(`✅ [SERVICE] Contribution created: ${contribution.id} (Approved: ${isAutoApproved})`);
     return { data: contribution };
   },
 }));
