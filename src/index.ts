@@ -22,30 +22,36 @@ export default {
       });
     }
 
-    // 2. OVERRIDE REGISTRATION CONTROLLER
+    // 2. OVERRIDE REGISTRATION CONTROLLER — Agency-only registration with email confirmation
     plugin.controllers.auth.register = async (ctx) => {
       const {
-        username, email, password,
-        first_name, last_name, birth_date, birth_place,
-        gender, phone, fiscal_code, role_type
+        agency_name, email, password,
+        vat_number, phone
       } = ctx.request.body || {};
 
-      if (!email || !password || !username) {
-        return ctx.badRequest('Missing mandatory fields (email, password or username)');
+      // ── Validation ──────────────────────────────────────
+      if (!email || !password || !agency_name) {
+        return ctx.badRequest('Campi obbligatori mancanti: email, password e nome agenzia');
       }
 
-      try {
+      if (password.length < 6) {
+        return ctx.badRequest('La password deve contenere almeno 6 caratteri');
+      }
 
-        // Check if user already exists
+      // Derive a unique username from the email
+      const username = email.toLowerCase().split('@')[0] + '_' + Date.now();
+
+      try {
+        // ── Check if user already exists ──────────────────
         const existingUser = await strapi.query('plugin::users-permissions.user').findOne({
-          where: { $or: [{ email: email.toLowerCase() }, { username }] }
+          where: { email: email.toLowerCase() }
         });
 
         if (existingUser) {
-          return ctx.badRequest('Email or Username already taken');
+          return ctx.badRequest('Questa email è già registrata');
         }
 
-        // Get default "Authenticated" role
+        // ── Get default "Authenticated" role ──────────────
         const advancedConfigs = await (strapi.store({ type: 'plugin', name: 'users-permissions', key: 'advanced' }).get() as any);
         const defaultRole = await strapi.query('plugin::users-permissions.role').findOne({
           where: { type: advancedConfigs.default_role || 'authenticated' }
@@ -55,41 +61,67 @@ export default {
           throw new Error('Default role (Authenticated) not found');
         }
 
-        // Create the user manually
+        // ── Create the user (NOT confirmed) ──────────────
         const newUser = await strapi.entityService.create('plugin::users-permissions.user', {
           data: {
             username,
             email: email.toLowerCase(),
             password,
-            first_name,
-            last_name,
-            birth_date,
-            birth_place,
-            gender,
-            phone,
-            fiscal_code,
-            role_type: role_type || 'individual',
+            role_type: 'agency_admin',
             credits: 0,
             role: defaultRole.id,
-            confirmed: true,
+            confirmed: false,
             provider: 'local',
           },
         });
 
-
-        // Generate JWT
-        const jwt = strapi.plugin('users-permissions').service('jwt').issue({
-          id: newUser.id,
+        // ── Create the Agency and link to the user ───────
+        const newAgency = await strapi.entityService.create('api::agency.agency', {
+          data: {
+            name: agency_name,
+            vat_number: vat_number || null,
+            phone: phone || null,
+            email: email.toLowerCase(),
+            owner: newUser.id,
+            staff: [newUser.id],
+            credits: 0,
+          },
         });
 
-        // Response
+        // ── Link the user back to their agency ───────────
+        await strapi.entityService.update('plugin::users-permissions.user', newUser.id, {
+          data: {
+            managed_agency: newAgency.id,
+            agencies: [newAgency.id],
+          },
+        });
+
+        // ── Send confirmation email via Strapi's built-in service ──
+        try {
+          // Fetch user with role populated (needed by sendConfirmationEmail)
+          const userWithRole = await strapi.query('plugin::users-permissions.user').findOne({
+            where: { id: newUser.id },
+            populate: ['role'],
+          });
+
+          await strapi.plugin('users-permissions').service('user').sendConfirmationEmail(userWithRole);
+          strapi.log.info(`Confirmation email sent to ${email}`);
+        } catch (emailErr) {
+          strapi.log.error('Failed to send confirmation email:', emailErr);
+          // Registration still succeeds even if email fails — can be resent later
+        }
+
+        // ── Response (no JWT — user must confirm first) ──
         ctx.body = {
-          jwt,
-          user: await strapi.entityService.findOne('plugin::users-permissions.user', newUser.id, {
-            populate: ['role', 'managed_agency', 'agencies']
-          })
+          message: 'Registrazione completata! Controlla la tua email per confermare l\'account.',
+          user: {
+            id: newUser.id,
+            email: newUser.email,
+            confirmed: false,
+          },
         };
       } catch (err: any) {
+        strapi.log.error('Registration error:', err);
         return ctx.badRequest(err.message);
       }
     };
@@ -109,6 +141,50 @@ export default {
     // Link uploaded images to memorials (one-time)
     const { linkImages } = require('../scripts/link-images');
     await linkImages(strapi);
+
+    // ── Fix: Ensure Users-Permissions uses a verified Resend domain ──
+    try {
+      const upStore = strapi.store({ type: 'plugin', name: 'users-permissions', key: 'email' });
+      const emailSettings = await upStore.get() as any;
+      
+      if (emailSettings) {
+        let changed = false;
+        
+        // Fix confirmation email
+        if (emailSettings.email_confirmation?.options?.fromAddress?.includes('strapi.io')) {
+          emailSettings.email_confirmation.options.fromAddress = 'onboarding@resend.dev';
+          emailSettings.email_confirmation.options.fromName = 'RIP - Rest in Pixel';
+          changed = true;
+        }
+        
+        // Fix reset password email
+        if (emailSettings.reset_password?.options?.fromAddress?.includes('strapi.io')) {
+          emailSettings.reset_password.options.fromAddress = 'onboarding@resend.dev';
+          emailSettings.reset_password.options.fromName = 'RIP - Rest in Pixel';
+          changed = true;
+        }
+
+        if (changed) {
+          await upStore.set({ value: emailSettings });
+          strapi.log.info('Updated Users-Permissions email settings to use onboarding@resend.dev');
+        }
+      }
+
+      // Also ensure email confirmation is ENABLED in advanced settings
+      const advStore = strapi.store({ type: 'plugin', name: 'users-permissions', key: 'advanced' });
+      const advancedSettings = await advStore.get() as any;
+      if (advancedSettings && !advancedSettings.email_confirmation) {
+        advancedSettings.email_confirmation = true;
+        // Set a reasonable redirect URL if missing
+        if (!advancedSettings.email_confirmation_redirection_url) {
+          advancedSettings.email_confirmation_redirection_url = 'http://localhost:8081/backoffice';
+        }
+        await advStore.set({ value: advancedSettings });
+        strapi.log.info('Enabled email confirmation in Users-Permissions advanced settings');
+      }
+    } catch (err) {
+      strapi.log.error('Failed to auto-configure email settings:', err);
+    }
 
     // Ensure user-agency association
     const firstUser = await strapi.entityService.findMany('plugin::users-permissions.user', { limit: 1 });
